@@ -1,24 +1,20 @@
 s.boot;
 MIDIClient.init;
 MIDIIn.connectAll;
-//~kickArray = "/home/pi/Desktop/kitz/9th/kickz/*.wav".pathMatch;
-//~snareArray = "/home/pi/Desktop/kitz/9th/snarez/*.wav".pathMatch;
-//~hatArray = "/home/pi/Desktop/kitz/9th/hatz/*.wav".pathMatch;
+~platform="windows";
+//~platform="pi";
 
-~kickArray = "c:/dilla/kickz/*.wav".pathMatch;
-~snareArray = "c:/dilla/snarez/*.wav".pathMatch;
-~hatArray = "c:/dilla/hatz/*.wav".pathMatch;
 if (~platform=="pi",{
-	// DRUMHAT consts
+	// raspi paths
+	~kickArray = "/home/pi/Desktop/kitz/9th/kickz/*.wav".pathMatch;
+	~snareArray = "/home/pi/Desktop/kitz/9th/snarez/*.wav".pathMatch;
+	~hatArray = "/home/pi/Desktop/kitz/9th/hatz/*.wav".pathMatch;
+	// DRUMHAT consts for each pad
 	~kick=67;
 	~hat=66;
 	~snare=65;
 	~up=63;
 	~down=64;
-	// raspi paths
-	~kickArray = "/home/pi/Desktop/kitz/9th/kickz/*.wav".pathMatch;
-	~snareArray = "/home/pi/Desktop/kitz/9th/snarez/*.wav".pathMatch;
-	~hatArray = "/home/pi/Desktop/kitz/9th/hatz/*.wav".pathMatch;
 },
 {
 	// windows paths
@@ -33,13 +29,10 @@ if (~platform=="pi",{
 	~down=91;
 })
 
-// use 1st file in each folder (needs validations)
+// use 1st file in each folder (asdf needs validations)
 ~kickIndex=0;
 ~snareIndex=0;
 ~hatIndex=0;
-
-
-
 
 ~kickBuffer = Buffer.read(s,~kickArray[~kickIndex],0,-1,[0,1]);
 ~snareBuffer= Buffer.read(s,~snareArray[~snareIndex],0,-1,[0,1]);
@@ -50,9 +43,13 @@ MIDIdef.noteOn(\noteOnTest, {
 	arg vel, nn, chan, src;
 	[vel, nn, chan, src].postln;
 	case
+
+	// play the pad
 	{nn == ~kick} {~kickBuffer.play;~last = nn;}
 	{nn == ~snare} {~snareBuffer.play;~last = nn;}
 	{nn == ~hat} {~hatBuffer.play;~last = nn;}
+
+	// change the sample up
 	{nn == ~up} {
 		case
 		{~last == ~kick}{
@@ -68,6 +65,8 @@ MIDIdef.noteOn(\noteOnTest, {
 			~hatBuffer=Buffer.read(s,~hatArray[~hatIndex]);
 		}
 	}
+
+	// change the sample down
 	{nn == ~down} {
 		case
 		{~last == ~kick}{
